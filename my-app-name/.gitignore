@@ -1,3 +1,6 @@
+#sensitive
+.env
+
 # Logs
 logs
 *.log
