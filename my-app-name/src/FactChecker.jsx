@@ -10,13 +10,17 @@ function FactChecker() {
   return (
     <div className="container">
       {/* Inline CSS for demonstration purposes.
-          In a production app, consider moving these styles to a separate CSS file. */}
+          In production, consider using a separate .css file and placing the font link in public/index.html. */}
       <style>{`
+        /* Import Poppins font so it matches your original HTML. */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
         * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
         }
+
         body {
           font-family: 'Poppins', sans-serif;
           background-color: #fff;
@@ -24,12 +28,15 @@ function FactChecker() {
           line-height: 1.6;
           padding: 40px;
         }
+
         .container {
           position: relative;
           max-width: 800px;
           margin: 0 auto;
           padding: 20px;
         }
+
+        /* Glowy Circle Background */
         .circle-bg {
           position: absolute;
           top: 50%;
@@ -45,6 +52,8 @@ function FactChecker() {
           );
           z-index: -1;
         }
+
+        /* Header */
         header {
           text-align: center;
           margin-bottom: 40px;
@@ -59,6 +68,8 @@ function FactChecker() {
           font-weight: 300;
           font-style: italic;
         }
+
+        /* Input Section */
         .input-section {
           background-color: #f6f6f6;
           border: 1px solid #e0e0e0;
@@ -99,6 +110,8 @@ function FactChecker() {
         .input-container button:hover {
           background-color: #c1662d;
         }
+
+        /* Output Section */
         .output-section {
           background-color: #f6f6f6;
           border: 1px solid #e0e0e0;
@@ -141,8 +154,11 @@ function FactChecker() {
       <section className="input-section">
         <h2>Enter Your Statement</h2>
         <div className="input-container">
-          <input type="text" id="userInput" placeholder="Type your statement here..." />
-          {/* Use onClick with a JavaScript function reference */}
+          <input
+            type="text"
+            id="userInput"
+            placeholder="Type your statement here..."
+          />
           <button onClick={checkStatement}>Check Fact</button>
         </div>
       </section>
