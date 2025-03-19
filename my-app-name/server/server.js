@@ -1,53 +1,70 @@
 import express from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
-import { Configuration, OpenAIApi } from "openai";
-import fs from 'fs';
+import fs from 'fs/promises';
+import { Configuration, OpenAIApi } from 'openai';
 import dotenv from 'dotenv';
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
-
-// Middleware setup
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Configure OpenAI API with the key from environment variables
 const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
-
 const openai = new OpenAIApi(configuration);
 
-// Define an endpoint to verify a claim
-app.post('/app/verify-claim', async (req, res) => {
-    const { claim } = req.body;
-
-    if (!claim) {
-        return res.status(400).json({ error: 'Claim is required.' });
-    }
-
-    try {
-        const prompt = fs.readFileSync('prompt.txt', 'utf-8');
-
-        const response = await openai.createCompletion({
-            model: 'gpt-4o-mini',
-            prompt: prompt,
-            max_tokens: 150,
-        });
-
-        res.json({ result: response.data.choices[0].text.trim() });
-
-    } catch (error) {
-        console.error('OpenAI API error', error);
-        res.status(500).json({ error: 'Failed to verify claim.' });
-    }
-});
-
-// Start the server
+let promptTemplate = '';
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+
+// Endpoint to verify a claim using the chat completions endpoint
+app.post('/app/verify-claim', async (req, res) => {
+  const { claim } = req.body;
+  if (!claim) {
+    return res.status(400).json({ error: 'Claim is required.' });
+  }
+
+  try {
+    // Prepare the prompt, optionally replacing a placeholder if it exists
+    const prompt = promptTemplate.includes('<<CLAIM>>')
+      ? promptTemplate.replace('<<CLAIM>>', claim)
+      : `${promptTemplate}\nClaim: ${claim}`;
+
+    const response = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo', // Change to 'gpt-4' if available and desired
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 150,
+    });
+
+    const result = response.data.choices?.[0]?.message?.content?.trim();
+    if (!result) {
+      return res.status(500).json({ error: 'No response from OpenAI API.' });
+    }
+
+    res.json({ result });
+  } catch (error) {
+    console.error(
+      'OpenAI API error:',
+      error.response ? error.response.data : error.message
+    );
+    res.status(500).json({ error: 'Failed to verify claim.' });
+  }
 });
+
+// Load prompt file and start the server
+const startServer = async () => {
+  try {
+    promptTemplate = await fs.readFile('prompt.txt', 'utf-8');
+    console.log('Prompt loaded successfully');
+  } catch (error) {
+    console.error('Error loading prompt.txt:', error);
+    process.exit(1);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+};
+
+startServer();
