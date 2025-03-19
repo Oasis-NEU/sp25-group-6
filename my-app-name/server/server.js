@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import OpenAI from 'openai';
+import { Configuration, OpenAIApi } from "openai";
 import fs from 'fs';
 import dotenv from 'dotenv';
 
@@ -15,9 +15,11 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Configure OpenAI API with the key from environment variables
-const openai = new OpenAI({
+const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 });
+
+const openai = new OpenAIApi(configuration);
 
 // Define an endpoint to verify a claim
 app.post('/app/verify-claim', async (req, res) => {
@@ -45,7 +47,7 @@ app.post('/app/verify-claim', async (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
