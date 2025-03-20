@@ -4,7 +4,10 @@ import fs from 'fs/promises';
 import { Configuration, OpenAIApi } from 'openai';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config( {override: true});
+
+console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
+
 
 const app = express();
 app.use(cors());
