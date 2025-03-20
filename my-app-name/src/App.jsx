@@ -1,9 +1,10 @@
-import ClaimForm from './Components/ClaimForm';
+import React from 'react';
+import FactChecker from './Components/FactChecker';
 
 function App() {
   return (
     <div>
-      <ClaimForm />
+      <FactChecker />
     </div>
   );
 }
