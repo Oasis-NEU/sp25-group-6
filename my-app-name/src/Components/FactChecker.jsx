@@ -1,16 +1,42 @@
-import React from 'react';
-
-// Define your function that will be triggered on button click
-function checkStatement() {
-  // Insert your fact-checking logic here
-  console.log("Checking statement...");
-}
+import React, { useState } from 'react';
+import axios from 'axios';
 
 function FactChecker() {
+  // State variables for form input, API response, and error handling
+  const [claim, setClaim] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Function to handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent page reload on form submission
+
+    if (!claim.trim()) {
+      setError("Please enter a claim.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      // Send POST request to the backend
+      const res = await axios.post("/api/app/verify-claim", { claim });
+      setResponse(res.data.result);
+    } catch (err) {
+      setError("Error verifying claim. Please try again.");
+      console.error(err);
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="container">
       {/* Inline CSS for demonstration purposes.
-          In production, consider using a separate .css file and placing the font link in public/index.html. */}
+          In production, consider using a separate .css file 
+          and placing the font link in public/index.html. */}
       <style>{`
         /* Import Poppins font so it matches your original HTML. */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
@@ -82,21 +108,26 @@ function FactChecker() {
           margin-bottom: 15px;
           text-align: center;
         }
-        .input-container {
+
+        /* We will place the entire form in the same "input-section" style. */
+        form {
           display: flex;
-          justify-content: center;
+          flex-direction: column;
+          align-items: center;
           gap: 10px;
-          flex-wrap: wrap;
         }
-        .input-container input[type="text"] {
-          width: 70%;
-          max-width: 400px;
+
+        textarea {
+          width: 80%;
+          max-width: 500px;
           padding: 10px;
           border: 1px solid #ccc;
           border-radius: 4px;
+          font-family: 'Poppins', sans-serif;
           font-size: 1rem;
         }
-        .input-container button {
+
+        button {
           padding: 10px 20px;
           background-color: #ff8346;
           color: #fff;
@@ -107,38 +138,20 @@ function FactChecker() {
           font-weight: 500;
           transition: background-color 0.2s ease;
         }
-        .input-container button:hover {
+        button:hover {
           background-color: #c1662d;
         }
 
-        /* Output Section */
-        .output-section {
-          background-color: #f6f6f6;
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          padding: 20px;
+        /* Error/Response Text */
+        .error-text {
+          color: red;
+          margin-top: 10px;
         }
-        .output-section h2 {
-          font-size: 1.4rem;
-          margin-bottom: 15px;
-          text-align: center;
-        }
-        .output-section p {
+        .response-text {
+          margin-top: 10px;
           font-size: 1rem;
-          margin-bottom: 10px;
         }
-        .sources {
-          background-color: #fff;
-          border: 1px solid #ddd;
-          padding: 10px;
-          border-radius: 4px;
-          font-size: 0.95rem;
-          margin-top: 15px;
-        }
-        .sources strong {
-          display: block;
-          margin-bottom: 5px;
-        }
+
       `}</style>
 
       {/* Glowy Circle Background */}
@@ -147,31 +160,33 @@ function FactChecker() {
       <header>
         <h1>STAND AI</h1>
         <p>
-          Advanced AI-driven fact-checking: Get a clear verdict (True/False), confidence level, and reliable sources instantly.
+          Advanced AI-driven fact-checking: Get a clear verdict (True/False), 
+          confidence level, and reliable sources instantly.
         </p>
       </header>
 
       <section className="input-section">
         <h2>Enter Your Statement</h2>
-        <div className="input-container">
-          <input
-            type="text"
-            id="userInput"
-            placeholder="Type your statement here..."
-          />
-          <button onClick={checkStatement}>Check Fact</button>
-        </div>
-      </section>
 
-      <section className="output-section">
-        <h2>Result</h2>
-        <p id="outputText">
-          No result yet. Enter a statement and click “Check Fact”.
-        </p>
-        <div className="sources">
-          <strong>SOURCES:</strong>
-          <p id="sourcesText">None</p>
-        </div>
+        {/* The Claim Form (merged from ClaimForm.jsx) */}
+        <form onSubmit={handleSubmit}>
+          <textarea
+            value={claim}
+            onChange={(e) => setClaim(e.target.value)}
+            placeholder="Enter a claim..."
+            rows={4}
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "Verifying..." : "Verify Claim"}
+          </button>
+        </form>
+
+        {error && <p className="error-text">{error}</p>}
+        {response && (
+          <p className="response-text">
+            <strong>Result:</strong> {response}
+          </p>
+        )}
       </section>
     </div>
   );

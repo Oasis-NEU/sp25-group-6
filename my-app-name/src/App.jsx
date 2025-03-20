@@ -1,5 +1,5 @@
 import React from 'react';
-import FactChecker from './FactChecker';
+import FactChecker from './Components/FactChecker';
 
 function App() {
   return (
