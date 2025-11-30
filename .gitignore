@@ -1,0 +1,6 @@
+#sensitive
+
+
+# Editor directories and files
+node_modules
+.vscode
