@@ -110,7 +110,3 @@ The server uses `dotenv` to load environment variables and `openai` for API call
 - No license specified. Add a `LICENSE` file if you want to open-source this repo.
 
 ---
-
-If you'd like, I can:
-- commit this `README.md` to a branch and open a pull request, or
-- expand the README with API endpoint examples and a sample `.env` that omits secrets.
